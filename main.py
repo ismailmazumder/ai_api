@@ -29,7 +29,9 @@ def ask():
     data = request.get_json(force=True, silent=True) or {}
     logging.info("Received request: %s", data)
 
-    text = data.get("text") + " .(1st just the number In integer tha by a comma  source link(link should be in text,like abc.com/gaza,   nothing else)(tell the average number so i get the accurate number)"
+    # text = data.get("text") + " .(1st just the number In integer tha by a comma  source link(link should be in text,like abc.com/gaza,   nothing else)(tell the average number so i get the accurate number)"
+        text = data.get("text") + ""
+
     if not text:
         return jsonify({"error": "Missing 'text' in request body"}), 400
 
