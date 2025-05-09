@@ -1,3 +1,4 @@
 flask
 openai
 websocket-client
+flask-cors
