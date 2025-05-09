@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # ✅ CORS added
 from websocket import create_connection
 import json
 import logging
+
 app = Flask(__name__)
+CORS(app)  # ✅ Allow all origins (you can restrict it if needed)
+
 logging.basicConfig(level=logging.INFO)
 
 WS_URL = "wss://copilot.microsoft.com/c/api/chat?api-version=2"
@@ -29,10 +33,10 @@ def ask():
     data = request.get_json(force=True, silent=True) or {}
     logging.info("Received request: %s", data)
 
-    text = data.get("text") + " tell it so user can understand"
-        # text = data.get("text") +". "
-
-    if not text:
+    text = data.get("text")
+    if text:
+        text += " tell it so user can understand"
+    else:
         return jsonify({"error": "Missing 'text' in request body"}), 400
 
     conversation_id = data.get("conversationId", "dDr9f3Z673dwuywprvmUD")
@@ -44,21 +48,17 @@ def ask():
 
     try:
         ws = create_connection(WS_URL, header=WS_HEADERS)
-        ws.settimeout(3)  # Set a timeout of 4 seconds for WebSocket operations
+        ws.settimeout(3)
         ws.send(json.dumps(payload))
-        print(text)
-        logging.info("Message sent. Listening for all responses...")
+        logging.info("Message sent. Listening for responses...")
 
         messages = []
-
-        # Set a read limit to avoid infinite loop (can be adjusted or removed)
-        for _ in range(20):  # Try receiving 4 messages max
+        for _ in range(20):
             try:
                 raw = ws.recv()
                 if raw:
                     msg = json.loads(raw)
                     messages.append(msg)
-                    print(msg)
             except Exception as e:
                 logging.warning("WebSocket recv error or timeout: %s", e)
                 break
