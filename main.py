@@ -48,7 +48,8 @@ def ask():
 
     try:
         ws = create_connection(WS_URL, header=WS_HEADERS)
-        ws.settimeout(3)
+        # no time limit
+        # ws.settimeout(3)
         ws.send(json.dumps(payload))
         logging.info("Message sent. Listening for responses...")
 
