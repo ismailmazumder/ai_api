@@ -48,18 +48,21 @@ def ask():
 
     try:
         ws = create_connection(WS_URL, header=WS_HEADERS)
-        # no time limit
         ws.settimeout(3)
         ws.send(json.dumps(payload))
         logging.info("Message sent. Listening for responses...")
 
         messages = []
-        for _ in range(20):
+        while True:  # Loop until a "packet off" condition is met
             try:
                 raw = ws.recv()
                 if raw:
                     msg = json.loads(raw)
                     messages.append(msg)
+                    # Check for "packet off" condition
+                    if "packet_off" in msg:  # Replace "packet_off" with the actual condition
+                        logging.info("Packet off condition detected. Stopping.")
+                        break
             except Exception as e:
                 logging.warning("WebSocket recv error or timeout: %s", e)
                 break
